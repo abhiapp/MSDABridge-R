@@ -1,0 +1,77 @@
+---
+title: "MSDA Week2 Assignment"
+author: "Abhishek Kumar"
+date: "July 22, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Assignment
+
+
+In probability, "n choose r" means n! / (( n - r)! * r!).
+For example, "5 choose 3" evaluates to 10.
+R has built in functions for choose() and factorial(). Your task is to write your own variation of the choose() function, that does not use either of these functions.
+Your code should adhere to the style guidelines provided by Hadley Wickham in this week's reading.
+You need to create your code and some test code, and deliver your code, results, and documentation in a single R Markdown file.
+
+## Solution
+
+We first need to design factorial function without using existing factorial function.
+
+#### Custom Factorial Function
+
+By definition factorial of any positive integer $n$  $(n >=0)$ is defined as 
+$n! = (n) * (n-1) *(n-2) ... 3 * 2 * 1$.
+
+```{r}
+custom.factorial <- function(x){
+  if(!is.integer(x) | x < 0) {
+    paste("Factorial is defined for postive integeres only")
+  }
+    if( (x==0 || x==1) & x >=0) {
+    1
+  }
+  else {
+    y <- 1
+    for (i in 1:x) {
+      y <- y*i
+    }
+    y
+  }    
+}
+```
+
+Below are some test results for custom.factorial() function.
+
+```{r}
+m <- custom.factorial(5)
+m
+n <- custom.factorial(10)
+n
+```
+
+#### Custom Choose Function
+The number of ways of picking k unordered outcomes from n possibilities. Also known as the binomial coefficient or choice number and read "n choose k" is defined as 
+
+${n \choose k} = n! / ((n-k)! * k!)$    whenever $k <= n$
+
+Now we can design the custom choose function using custom factorial function.
+
+```{r}
+custom.choose <- function(n,r) {
+  custom.factorial(n) / (custom.factorial(n-r) * custom.factorial(r))
+}
+```
+
+Below are some test results of custom.choose() function
+
+```{r}
+a <- custom.choose(5,2)
+a
+```
+
+
