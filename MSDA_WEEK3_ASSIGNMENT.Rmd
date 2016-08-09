@@ -9,23 +9,24 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+## Assignment
 
 Very often, we're tasked with taking data in one form and transforming it for easier downstream analysis.  We will spend several weeks in the Fall 607 class on tidying and transformation operations.  Some of this work could be done in SQL or R (or Python or.).  Here, you are asked to use R-you may use base functions or packages as you like. 
 Mushrooms Dataset.  A famous-if slightly moldy-dataset about mushrooms can be found in the UCI repository here: https://archive.ics.uci.edu/ml/datasets/Mushroom.  The fact that this is such a well-known dataset in the data science community makes it a good dataset to use for comparative benchmarking.  For example, if someone was working to build a better decision tree algorithm (or other predictive classifier) to analyze categorical data, this dataset could be useful.  A typical problem (which is beyond the scope of this assignment!) is to answer the question, "Which other attribute or attributes are the best predictors of whether a particular mushroom is poisonous or edible?" 
 Your task is to study the dataset and the associated description of the data (i.e. "data dictionary").  You may need to look around a bit, but it's there!  You should take the data, and create a data frame with a subset of the columns (and if you like rows) in the dataset.  You should include the column that indicates edible or poisonous and three or four other columns.  You should also add meaningful column names and replace the abbreviations used in the data-for example, in the appropriate column, "e" might become "edible."  Your deliverable is the R code to perform these transformation tasks. 
 
-
-```{r cars}
-summary(cars)
+#### Understand Mushroom Dataset
+```{r }
+# Load Mushorrom Data from Webpage
+m_data_url <- 'https://archive.ics.uci.edu/ml/machine-learning-databases/mushroom/agaricus-lepiota.data'
+m_data <- read.csv(m_data_url,header = FALSE, sep = ",")
+# Rename Mushroom Data Frame According to Data Source Definition
+names(m_data) <- c("classes","cap-shape","cap-surface","cap-color","bruises?","odor","gill-attachment","gill-spacing","gill-size","gill-color","stalk-shape","stalk-root","stalk-surface-above-ring","stalk-surface-below-ring","stalk-color-above-ring","stalk-color-below-ring","veil-type","veil-color","ring-number","ring-type","spore-print-color","population","habitat")
+#Create a smaller subset from Mushroom datset to anlayze the data
+m_data_subset <- m_data[,c(1,2,4)]
+head(m_data_subset)
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
