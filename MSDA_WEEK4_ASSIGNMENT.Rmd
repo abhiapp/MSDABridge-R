@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ---
 title: "MSDA Week 4 Assignment"
 author: "Abhishek Kumar"
@@ -98,3 +99,105 @@ j <- ggplot(d,aes(year,thickness))
 j + geom_line(aes(color = status))
 ```
 
+=======
+---
+title: "MSDA Week 4 Assignment"
+author: "Abhishek Kumar"
+date: "August 6, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Assignment - Exploratory Data Analysis in R
+Choose an interesting dataset and use R graphics to describe the data.  You may use base R graphics, or a graphics package of your choice.  You should include at least one example of each of the following: 
+•	histogram 
+•	boxplot 
+•	scatterplot 
+Do the graphics provide insight into any relationships in the data? 
+
+### Insight on Data - Survival from Malignant Melanoma 
+The data consist of measurements made on patients with malignant melanoma. Each patient had their tumour removed by surgery at the Department of Plastic Surgery, University Hospital of Odense, Denmark during the period 1962 to 1977. The surgery consisted of complete removal of the tumour together with about 2.5cm of the surrounding skin. Among the measurements taken were the thickness of the tumour and whether it was ulcerated or not. These are thought to be important prognostic variables in that patients with a thick and/or ulcerated tumour have an increased chance of death from melanoma. Patients were followed until the end of 1977. 
+
+#### Data Format
+
+This data frame contains the following columns: 
+
+* time : survival time in days since the operation, possibly censored. 
+
+* status : The patients status at the end of the study. 1 indicates that they had died from melanoma, 2 indicates that they were still alive and 3 indicates that they had died from causes unrelated to their melanoma. 
+
+* sex : The patients sex; 1=male, 0=female. 
+
+* age : Age in years at the time of the operation. 
+
+* year : Year of operation. 
+
+* thickness : Tumour thickness in mm. 
+
+* ulcer : Indicator of ulceration; 1=present, 0=absent. 
+
+```{r, echo=FALSE, warning=FALSE}
+#install.packages("boot")
+library(boot)
+data("melanoma")
+head(melanoma)
+```
+
+#### Analyze Data
+
+Transform data with menaningful values to understand better.
+```{r}
+melanoma$ulcer[melanoma$ulcer == 1] <- "Persent"
+melanoma$ulcer[melanoma$ulcer == 0] <- "Absent"
+melanoma$sex[melanoma$sex == 1] <- "Male"
+melanoma$sex[melanoma$sex == 0] <- "Female"
+melanoma$status[melanoma$status == 1] <- "Died from Melanoma"
+melanoma$status[melanoma$status == 2] <- "Still Alive"
+melanoma$status[melanoma$status == 3] <- "Died from other cause"
+
+head(melanoma)
+
+```
+
+
+Below is the `histogram` plot of count of tumor thickness.
+
+```{r, echo=FALSE, warning=FALSE}
+library(ggplot2)
+
+#head(melanoma)
+a <- ggplot(melanoma, aes(thickness, fill = ulcer))
+a + geom_histogram(binwidth = 0.5)
+```
+
+Below is the example of `boxplot` to show the distribution of ulser for person age.
+
+```{r, echo=FALSE, warning=FALSE}
+library(ggplot2)
+g <- ggplot(melanoma, aes(ulcer,age))
+g + geom_boxplot(aes(fill = ulcer)) 
+```
+
+
+
+Below is the example of `scatterplot` to show distribution of suurviaval time(in years)  and age of person. 
+
+```{r,echo=FALSE, warning=FALSE}
+library(ggplot2)
+f <- ggplot(melanoma, aes(age,time/365))
+f + geom_point(aes(color = sex)) +  geom_smooth(method = "lm") + ylab("Surrvival Time (in years)") + xlab("Age (in years)") + ggtitle("DIstribution of Surrvival Time vs Age") + facet_grid(status ~ .)
+```
+
+`Line Chart` is one of best example to analyze the trend of thikness over time.
+
+```{r,echo=FALSE, warning=FALSE}
+d <- aggregate(thickness ~ year+status,data = melanoma, FUN = sum)
+#head(d)
+j <- ggplot(d,aes(year,thickness))
+j + geom_line(aes(color = status))
+```
+
+>>>>>>> origin/master
