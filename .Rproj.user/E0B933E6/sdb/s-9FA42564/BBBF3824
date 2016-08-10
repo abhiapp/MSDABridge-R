@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "install.packages(\"hflights\")\nlibrary(hflights)\n\ndata(\"hflights\")\n\nhead(hflights)\n\na1 <- hflights[,c(1:6,10:13)]\nhead(a1)\n\na2 <- hflights[,c(1:6)]\nhead(a2)\na2$Date <- NA\na2$Date <- as.Date(paste(a2$Month,a2$Year,a2$DayofMonth,sep = \".\"), format = \"%m.%Y.%d\")\nhead(a2)\nx <- paste(a2$Month,a2$Year,a2$DayofMonth,a2$DepTime, sep = \".\")\nhead(x)\na2$DepDateTime <- strptime(paste(a2$Month,a2$Year,a2$DayofMonth,a2$DepTime, sep = \".\"), format = \"%m.%Y.%d.%k\")\nhead(a2)\n\na2$ArrDayofMonth <- ifelse(a2$DepTime > a2$ArrTime & a2$DepTime !=NA,a2$DayofMonth+1,a2$DayofMonth)\nhead(a2)\n\na2$ArrDateTime <- strptime(paste(a2$Month,a2$Year,a2$ArrDayofMonth,a2$ArrTime, sep = \".\"), format = \"%m.%Y.%d.%k\")\nhead(a2)\n\na3 <- unique(hflights[,c(14)])\na3\n\na4 <- unique(hflights[,c(14:15)])\na4\nstr(a4)\ndim(a4)\nnrow(a4)\n\na5 <- as.data.frame(unique(hflights[,c(15)]))\na5\nstr(a5)\ndim(a5)\nnrow(a5)\n\nlibrary(plyr)\n\na6 <- ddply(a4.variables = \"Origin\",.fun = \"count\" )\na6\n\na6 <- count(a4,\"Origin\")\na6\n\nlibrary(ggplot2)\n\ng1 <- ggplot(a4,aes(Origin))\n\ng1 + geom_bar(aes(fill = Origin)) + xlab('Origin Airport') + ylab('Number of Destination') \n\nhead(hflights)\n\na7 <- hflights[,c(1,5,6,7,10:15)]\na7$OnTimeArr <- ifelse(a7$ArrDelay <=15, 'On Time', 'Late' )\na7$OnTimeDept <- ifelse(a7$DepTime <=15, 'on Time', 'Late')\nhead(a7)\n\na8 <- a7[a7$ArrTime = NA, ]\nhead(a8)\n",
+    "created" : 1470714533677.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "266336816",
+    "id" : "BBBF3824",
+    "lastKnownWriteTime" : 1470787484,
+    "last_content_update" : 1470787484,
+    "path" : "C:/Users/abhi0/Google Drive/MSDA/Github/MSDABridge-R/Test_Final_Project.R",
+    "project_path" : "Test_Final_Project.R",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
