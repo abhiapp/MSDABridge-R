@@ -1,35 +1,200 @@
 ---
 title: "MSDA Final Project"
+subtitle : "Analyze Airport Departure Data of Houston Airport"
 author: "Abhishek Kumar"
 date: "August 8, 2016"
-output: ioslides_presentation
+output:
+  ioslides_presentation:
+    fullscreen : true
+    smaller: true
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
-## R Markdown
+## Agenda
 
-This is an R Markdown presentation. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+ - Understand the requirement of Final Project Task.
+ - Understand Data
+ - Define Analytics Requirement.
+ - Identify Key Performance Indicators (KPIs)
+ - Analyze the Data
+ 
+## MSDA Final Project
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document.
+**Task**
 
-## Slide with Bullets
+This project is where you show off your ability to 
 
-- Bullet 1
-- Bullet 2
-- Bullet 3
+- use R packages
+- change the shape of data in a data frame
+- provide basic summary statistics and graphics as part of your exploratory   data analysis.
 
-## Slide with R Output
+**Instructions**
 
-```{r cars, echo = TRUE}
-summary(cars)
+- You should start by installing and loading the R package hflights, which is available on CRAN and described here: https://cran.r-project.org/web/packages/hflights/hflights.pdf
+- You should perform some basic transformations on the data frame, such as including only a subset of columns, created one or more new derived columns (such as flight date), and/or filtering out rows.
+- You should then create basic summary statistics. You should create at least one interesting question for analysis, and answer the question using two or more graphics in R.
+
+
+
+## Understand Data
+**hflights** dataset contains all flights *departing* from Houston airports IAH (George Bush Intercontinental) and HOU (Houston Hobby) in *2011*. The data comes from the Research and Innovation Technology Administration at the Bureau of Transporation statistics(BTS) provided by author Hadley Wickham.
+It is a data frame with 227,496 rows and 21 columns.
+
+```{r}
+library(hflights)
+library(ggplot2)
+library(plyr)
+head(hflights)
 ```
 
-## Slide with Plot
 
-```{r pressure}
-plot(pressure)
+<div class="notes">
+**Variables**  
+
+- Year, Month, DayofMonth: date of departure 
+- DayOfWeek: day of week of departure (useful for removing weekend effects) 
+- DepTime, ArrTime: departure and arrival times (in local time, hhmm) 
+- UniqueCarrier: unique abbreviation for a carrier 
+- FlightNum: flight number 
+- TailNum: airplane tail number 
+- ActualElapsedTime: elapsed time of flight, in minutes 
+- AirTime: flight time, in minutes 
+- ArrDelay, DepDelay: arrival and departure delays, in minutes 
+- Origin, Dest origin and destination airport codes 
+- Distance: distance of flight, in miles 
+- TaxiIn, TaxiOut: taxi in and out times in minutes 
+- Cancelled: cancelled indicator: 1 = Yes, 0 = No 
+- CancellationCode: reasonforcancellation: A=carrier,B=weather,C=nationalairsystem, D = security 
+- Diverted: diverted indicator: 1 = Yes, 0 = No
+
+</div>
+
+## Define Analytics Requiremnet
+According to BTS,  A flight is considered on-time when it arrives less than 15 minutes after its published arrival time.
+
+Based on above assumption and existing Dataset below are the list of Analytics Requiremnet.
+
+
+> * **Overall Summary on Airport Data.**
+> * **Which airlines are good for On Time Arrival at Scheduled Location.**
+> * **Which airlines are good for On Time Departure at SCheduled Location.**
+> * **Which attributes are responsible for cancelattion of Major flights.**
+
+
+
+## Key Performing Indicator & Metrics
+
+> * **Arrival Timeliness (%)** 
+    - On Time Arrival Count : - Count of flights which are arrived within                                  15 minutes of scheduled Arrival Time. 
+    - Total Count :- Count of all flights which are not cancelled.
+    - $$Arrival Timeliness = On Time Arrival Count / Total Count *100$$ 
+
+> * **Departure Timeliness (%)** 
+    - On Time Departure Count : - Count of flights which are arrived within                                  15 minutes of scheduled Arrival Time. 
+    - Total Count :- Count of all flights which are not cancelled.
+    - $$Departure Timeliness = On Time Departure Count / Total Count *100$$ 
+> * **Number of Flights Departed on Scheduled Route**
+
+> * **Number of Flights Departed on Diverted Route**
+
+> * **Number of Flights Cancelled**
+
+
+
+## Basic Summary {.smaller .columns-2}
+
+
+```{r, warning=FALSE, out.width =  '400px', out.height= '500px'}
+a4 <- unique(hflights[,c(14:15)])
+a4$Origin[a4$Origin == 'IAH'] <- "George Bush Intercontinental"
+a4$Origin[a4$Origin == 'HOU'] <- "Houston Hobby"
+g1 <- ggplot(a4,aes(Origin))
+g1 + geom_bar(aes(fill = Origin)) + xlab('Origin Airport') + ylab('Number of Destination') + ggtitle("Summary of Airline connected to Houston Airports")
 ```
 
+
+
+
+```{r, warning=FALSE, out.width =  '400px', out.height= '500px'}
+b1 <- hflights[,c(2,7:9,12:15,19:21)]
+b1$type <- NA
+b1$type[b1$Cancelled == 1] <- 'Cancelled'
+b1$type[b1$Diverted == 1] <- 'Diverted'
+b1$type[b1$Cancelled == 0 & b1$Diverted == 0] <- 'OnRoute'
+b1$MonthName <- month.abb[b1$Month]
+b1$MonthName <- factor(b1$MonthName, levels = b1$MonthName[order(b1$Month)])
+#b2 <- ddply(b1,c('Month','MonthName','type'),nrow)
+#head(b2)
+#monthly_status <- ggplot(b2,aes(Month,V1))
+#monthly_status + geom_line(aes(color = type))
+month_summary <- ggplot(b1,aes(MonthName)) 
+month_summary + geom_bar(width = 0.25,aes(fill = MonthName)) +  facet_grid(type ~ ., scale="free_y") + xlab('Month') + ylab('Number of Flights') + ggtitle("Monthly Status Report") + labs(fill = "Month Name")
+```
+
+
+
+## Timeliness {.smaller .columns-2}
+
+```{r,,eval=TRUE, warning=FALSE, out.width =  '400px', out.height= '500px'}
+library(plyr)
+a7 <- hflights[,c(2,5,6,7,10:15)]
+a7$OnTimeArr <- ifelse(a7$ArrDelay <=15, 1,0)
+a7$OnTimeDept <- ifelse(a7$DepDelay <=15, 1,0)
+s1 <- ddply(a7,'UniqueCarrier',function(x) c(count=nrow(x),sum=sum(x$OnTimeDept, na.rm = TRUE), percent = sum(x$OnTimeDept, na.rm = TRUE)*100/nrow(x) ))
+#head(s1)
+s1$UniqueCarrier <- factor(s1$UniqueCarrier, levels = s1$UniqueCarrier[order(s1$percent)])
+g2 <- ggplot(s1,aes(UniqueCarrier,percent,group =1))
+g2 + geom_bar(stat = "identity",aes(fill = UniqueCarrier) ) + geom_line() + xlab('Airline Code') + ylab('Arrival Timeliness(%)') + ggtitle("Airline Arrival Timeliness") + labs(fill = "Airline Code")
+```
+
+
+
+```{r ,eval=TRUE, warning=FALSE, out.width =  '400px', out.height= '500px'}
+s2 <- ddply(a7,'UniqueCarrier',function(x) c(count=nrow(x),sum=sum(x$OnTimeArr, na.rm = TRUE), percent = sum(x$OnTimeArr, na.rm = TRUE)*100/nrow(x) ))
+s2$UniqueCarrier <- factor(s2$UniqueCarrier, levels = s2$UniqueCarrier[order(s2$percent)])
+g2 <- ggplot(s2,aes(UniqueCarrier,percent,group =1))
+g2 + geom_bar(stat = "identity",aes(fill = UniqueCarrier) ) + geom_line() + xlab('Airline Code') + ylab('Departure Timeliness(%)') + ggtitle("Airline Departure Timeliness") + labs(fill = "Airline Code")
+```
+
+## Cancellation {.smaller .columns-2}
+
+```{r, warning = FALSE, out.width =  '400px', out.height= '500px'}
+a9 <- subset(hflights,hflights$Cancelled == 1)
+a9$CancellationCode[a9$CancellationCode == 'A'] <- 'Carrier'
+a9$CancellationCode[a9$CancellationCode == 'B'] <- 'Weather'
+a9$CancellationCode[a9$CancellationCode == 'C'] <- 'National Air System'
+a9$CancellationCode[a9$CancellationCode == 'D'] <- 'Security'
+a9$Origin[a9$Origin == 'IAH'] <- "George Bush Intercontinental"
+a9$Origin[a9$Origin == 'HOU'] <- "Houston Hobby"
+a9$MonthName <- month.abb[a9$Month]
+a9$MonthName <- factor(a9$MonthName, levels = a9$MonthName[order(a9$Month)])
+b2 <- ddply(a9,c('Month','MonthName','CancellationCode'),nrow)
+#head(b2)
+#b2$MonthName <- factor(b2$MonthName, levels = b2$MonthName[order(b2$Month)])
+#monthly_status <- ggplot(b2,aes(MonthName,V1))
+#monthly_status + geom_line(aes(color = CancellationCode))
+monthly_cancellation <- ggplot(a9,aes(MonthName)) 
+monthly_cancellation + geom_bar(width = 0.25,aes(fill = MonthName)) +  facet_grid(CancellationCode ~ ., scale="free_y") + xlab('Month') + ylab('Number of Flights Cancelled') + ggtitle("Monthly Status Report\nfor Cancelled Flights") + labs(fill = "Month Name")
+
+```
+
+
+```{r,warning = FALSE, out.width =  '400px'}
+#library(plotrix)
+
+pie2 <- ggplot(a9, aes(x = factor(1), fill = factor(CancellationCode))) +
+  geom_bar(position = "fill",width = 1) + facet_grid(facets=. ~ Origin)
+pie2 + coord_polar(theta = "y") + xlab('') +  ylab('') + 
+  labs(fill='Cancellation Code') + scale_fill_brewer(palette="Dark2") +   ggtitle("Factors Contributing to\nFlight Cancellation")
+```
+
+
+## References
+
+- `hflights` package by Hadley Wickham 
+  https://cran.r-project.org/web/packages/hflights/hflights.pdf
+- Research and Innovation Technology Administration at the Bureau of       Transporation statistics
+http://www.transtats.bts.gov/DatabaseInfo.asp?DB_ID=120&Link=0
